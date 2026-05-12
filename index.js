@@ -17,12 +17,24 @@ var moduleRoot = (function (_rootPath) {
 	return parts.join(path.sep);
 })(module.parent ? module.parent.paths[0] : module.paths[0]);
 
-
 /**
  * Keystone Class
  */
 var Keystone = function () {
-	grappling.mixin(this).allowHooks('pre:static', 'pre:bodyparser', 'pre:session', 'pre:logger', 'pre:admin', 'pre:routes', 'pre:render', 'updates', 'signin', 'signout');
+	grappling
+		.mixin(this)
+		.allowHooks(
+			'pre:static',
+			'pre:bodyparser',
+			'pre:session',
+			'pre:logger',
+			'pre:admin',
+			'pre:routes',
+			'pre:render',
+			'updates',
+			'signin',
+			'signout',
+		);
 	this.lists = {};
 	this.fieldTypes = {};
 	this.paths = {};
@@ -48,8 +60,17 @@ var Keystone = function () {
 	// init environment defaults
 	this.set('env', process.env.NODE_ENV || 'development');
 
-	this.set('port', process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || '3000');
-	this.set('host', process.env.HOST || process.env.IP || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0');
+	this.set(
+		'port',
+		process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || '3000',
+	);
+	this.set(
+		'host',
+		process.env.HOST
+			|| process.env.IP
+			|| process.env.OPENSHIFT_NODEJS_IP
+			|| '0.0.0.0',
+	);
 	this.set('listen', process.env.LISTEN);
 
 	this.set('ssl', process.env.SSL);
@@ -59,10 +80,16 @@ var Keystone = function () {
 	this.set('ssl cert', process.env.SSL_CERT);
 
 	this.set('cookie secret', process.env.COOKIE_SECRET);
-	this.set('cookie signin', (this.get('env') === 'development') ? true : false);
+	this.set('cookie signin', this.get('env') === 'development' ? true : false);
 
-	this.set('embedly api key', process.env.EMBEDLY_API_KEY || process.env.EMBEDLY_APIKEY);
-	this.set('mandrill api key', process.env.MANDRILL_API_KEY || process.env.MANDRILL_APIKEY);
+	this.set(
+		'embedly api key',
+		process.env.EMBEDLY_API_KEY || process.env.EMBEDLY_APIKEY,
+	);
+	this.set(
+		'mandrill api key',
+		process.env.MANDRILL_API_KEY || process.env.MANDRILL_APIKEY,
+	);
 	this.set('mandrill username', process.env.MANDRILL_USERNAME);
 	this.set('google api key', process.env.GOOGLE_BROWSER_KEY);
 	this.set('google server api key', process.env.GOOGLE_SERVER_KEY);
@@ -73,11 +100,22 @@ var Keystone = function () {
 	this.set('allowed ip ranges', process.env.ALLOWED_IP_RANGES);
 
 	if (process.env.S3_BUCKET && process.env.S3_KEY && process.env.S3_SECRET) {
-		this.set('s3 config', { bucket: process.env.S3_BUCKET, key: process.env.S3_KEY, secret: process.env.S3_SECRET, region: process.env.S3_REGION });
+		this.set('s3 config', {
+			bucket: process.env.S3_BUCKET,
+			key: process.env.S3_KEY,
+			secret: process.env.S3_SECRET,
+			region: process.env.S3_REGION,
+		});
 	}
 
-	if (process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_ACCESS_KEY) {
-		this.set('azurefile config', { account: process.env.AZURE_STORAGE_ACCOUNT, key: process.env.AZURE_STORAGE_ACCESS_KEY });
+	if (
+		process.env.AZURE_STORAGE_ACCOUNT
+		&& process.env.AZURE_STORAGE_ACCESS_KEY
+	) {
+		this.set('azurefile config', {
+			account: process.env.AZURE_STORAGE_ACCOUNT,
+			key: process.env.AZURE_STORAGE_ACCESS_KEY,
+		});
 	}
 
 	if (process.env.CLOUDINARY_URL) {
@@ -87,7 +125,6 @@ var Keystone = function () {
 
 	// init mongoose
 	this.set('mongoose', require('mongoose'));
-	this.mongoose.Promise = require('es6-promise').Promise;
 
 	// Attach middleware packages, bound to this instance
 	this.middleware = {
@@ -98,7 +135,6 @@ var Keystone = function () {
 
 _.extend(Keystone.prototype, require('./lib/core/options'));
 
-
 Keystone.prototype.prefixModel = function (key) {
 	var modelPrefix = this.get('model prefix');
 
@@ -106,7 +142,7 @@ Keystone.prototype.prefixModel = function (key) {
 		key = modelPrefix + '_' + key;
 	}
 
-	return require('mongoose/lib/utils').toCollectionName(key);
+	return require('mongoose/lib/utils').toCollectionName(key, this.mongoose.pluralize());
 };
 
 /* Attach core functionality to Keystone.prototype */
@@ -130,14 +166,15 @@ Keystone.prototype.createKeystoneHash = require('./lib/core/createKeystoneHash')
 
 /* Deprecation / Change warnings for 0.4 */
 Keystone.prototype.routes = function () {
-	throw new Error('keystone.routes(fn) has been removed, use keystone.set(\'routes\', fn)');
+	throw new Error(
+		"keystone.routes(fn) has been removed, use keystone.set('routes', fn)",
+	);
 };
-
 
 /**
  * The exports object is an instance of Keystone.
  */
-var keystone = module.exports = new Keystone();
+var keystone = (module.exports = new Keystone());
 
 /*
 	Note: until #1777 is complete, the order of execution here with the requires
@@ -177,7 +214,6 @@ Keystone.prototype.import = function (dirname) {
 	return importer(this.get('module root'))(dirname);
 };
 
-
 /**
  * Applies Application updates
  */
@@ -192,7 +228,6 @@ Keystone.prototype.applyUpdates = function (callback) {
 		});
 	});
 };
-
 
 /**
  * Logs a configuration error to the console
@@ -211,7 +246,6 @@ Keystone.prototype.console.err = function (type, msg) {
  */
 
 keystone.version = require('./package.json').version;
-
 
 // Expose Modules
 keystone.session = require('./lib/session');

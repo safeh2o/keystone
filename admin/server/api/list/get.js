@@ -29,28 +29,27 @@ module.exports = function (req, res) {
 	if (req.query.search) {
 		assign(where, req.list.addSearchToQuery(req.query.search));
 	}
-	var query = req.list.model.find(where);
-	if (req.query.populate) {
-		query.populate(req.query.populate);
-	}
-	if (req.query.expandRelationshipFields && req.query.expandRelationshipFields !== 'false') {
-		req.list.relationshipFields.forEach(function (i) {
-			query.populate(i.path);
-		});
-	}
 	var sort = req.list.expandSort(req.query.sort);
 	async.waterfall([
 		function (next) {
 			if (!includeCount) {
 				return next(null, 0);
 			}
-			query.count(next);
+			req.list.model.countDocuments(where, next);
 		},
 		function (count, next) {
 			if (!includeResults) {
 				return next(null, count, []);
 			}
-			query.find();
+			var query = req.list.model.find(where);
+			if (req.query.populate) {
+				query.populate(req.query.populate);
+			}
+			if (req.query.expandRelationshipFields && req.query.expandRelationshipFields !== 'false') {
+				req.list.relationshipFields.forEach(function (i) {
+					query.populate(i.path);
+				});
+			}
 			query.limit(Number(req.query.limit) || 100);
 			query.skip(Number(req.query.skip) || 0);
 			if (sort.string) {
